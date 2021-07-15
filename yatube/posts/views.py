@@ -10,7 +10,10 @@ def index(request):
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'index.html', {'page': page})
+    index = {
+        'page': page
+    }
+    return render(request, 'index.html', index)
 
 
 def group_posts(request, slug):
@@ -67,7 +70,10 @@ def new_post(request):
         form.author = request.user
         form.save()
         return redirect('index')
-    return render(request, 'postform.html', {'form': form})
+    new_post = {
+        'form': form
+    }
+    return render(request, 'postform.html', new_post)
 
 
 @login_required
@@ -83,7 +89,11 @@ def post_edit(request, username, post_id):
     if form.is_valid():
         form.save()
         return redirect('post_view', username=username, post_id=post_id)
-    return render(request, 'postform.html', {'form': form})
+    post_edit = {
+        'form': form,
+        'post': post,
+    }
+    return render(request, 'postform.html', post_edit)
 
 
 @login_required
@@ -98,14 +108,17 @@ def add_comment(request, username, post_id):
         form.post = post
         form.save()
         return redirect('post_view', username=username, post_id=post_id)
-    return render(request, 'comments.html', {'form': form})
+    add_comment = {
+        'form': form
+    }
+    return render(request, 'comments.html', add_comment)
 
 
 @login_required
 def follow_index(request):
-    user = request.user
-    following = get_object_or_404(models.User, username=user)
-    post_list = models.Post.objects.filter(author__following__user=following)
+    username = request.user.username
+    follower = get_object_or_404(models.User, username=username)
+    post_list = models.Post.objects.filter(author__following__user=follower)
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
@@ -125,9 +138,9 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
-    author = get_object_or_404(models.User, username=username)
-    if author != request.user:
-        models.Follow.objects.filter(user=request.user, author=author).delete()
+    models.Follow.objects.filter(
+        user=request.user, author__username=username
+    ).delete()
     return redirect('profile', username=username)
 
 
