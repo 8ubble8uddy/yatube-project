@@ -131,4 +131,8 @@ class PostFormTests(TestCase):
         self.assertEqual(Comment.objects.count(), comments_count + 1)
         new_comment = Comment.objects.first()
         text = form_data['text']
+        post_id = kwargs_post['post_id']
+        author = self.user
         self.assertEqual(text, new_comment.text)
+        self.assertEqual(post_id, new_comment.post.id)
+        self.assertEqual(author, new_comment.author)

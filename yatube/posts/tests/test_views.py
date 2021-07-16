@@ -40,6 +40,9 @@ class PostsPagesTests(TestCase):
         cls.post = Post.objects.create(
             text='текст', author=cls.user, group=cls.group, image=uploaded
         )
+        cls.comment = Comment.objects.create(
+            text='комментарий', post=cls.post, author=cls.user
+        )
 
     @classmethod
     def tearDownClass(cls):
@@ -56,12 +59,8 @@ class PostsPagesTests(TestCase):
         self.assertEqual(post.pub_date, expected.pub_date)
         self.assertEqual(post.author, expected.author)
         self.assertEqual(post.group, expected.group)
-        # Объясните пожалуйста, в случае если у поста image=None
-        # при проверке self.assertEqual(post.image, expected.image) получаю
-        # AssertionError: <ImageFieldFile: None> != <ImageFieldFile: None>
-        image = post.image.name if post.image else None
-        expected = expected.image.name if expected.image else None
-        self.assertEqual(image, expected)
+        if post.image:
+            self.assertEqual(post.image, expected.image)
 
     def is_form_instance(self, form):
         """Проверяет на соответствие полей form с указанным классом"""
@@ -79,7 +78,8 @@ class PostsPagesTests(TestCase):
         image = form['image'].value()
         self.assertEqual(text, expected.text)
         self.assertEqual(group, expected.group.id if expected.group else None)
-        self.assertEqual(image, expected.image)
+        if image:
+            self.assertEqual(image, expected.image)
 
     def test_pages_use_correct_template(self):
         """URL-адреса доступны и используют соответствующий шаблон."""
@@ -142,6 +142,12 @@ class PostsPagesTests(TestCase):
         post = response.context['post']
         expected = self.post
         self.is_post_correct(post, expected)
+        comment = response.context['comments'][0]
+        expected_comment = self.comment
+        self.assertEqual(comment.text, expected_comment.text)
+        self.assertEqual(comment.created, expected_comment.created)
+        self.assertEqual(comment.post, expected_comment.post)
+        self.assertEqual(comment.author, expected_comment.author)
 
     def test_post_edit_page_shows_correct_context(self):
         """Шаблон post_edit сформирован с правильным контекстом."""
@@ -165,23 +171,6 @@ class PostsPagesTests(TestCase):
         self.is_form_instance(form)
         self.is_form_correct(form, expected)
 
-    def test_add_comment_shows_correct_context(self):
-        """Шаблон add_comment сформирован с правильными контекстом."""
-        expected = Comment.objects.create(
-            text='комментарий', post=self.post, author=self.user
-        )
-        kwargs_post = {
-            'username': self.user.username,
-            'post_id': self.post.id,
-        }
-        path = reverse('post_view', kwargs=kwargs_post)
-        response = self.authorized_client.get(path)
-        comment = response.context['comments'][0]
-        self.assertEqual(comment.text, expected.text)
-        self.assertEqual(comment.created, expected.created)
-        self.assertEqual(comment.post, expected.post)
-        self.assertEqual(comment.author, comment.author)
-
     def test_group_post_doesnt_apear_in_another_group(self):
         """Пост группы не появляется в другой группе."""
         another_group = Group.objects.create(
@@ -203,9 +192,7 @@ class PostsPagesTests(TestCase):
         response_1 = self.authorized_client.get(path)
         page = response_1.context['page']
         paginator = page.paginator
-        post = page[0]
         self.assertEqual(paginator.num_pages, 1)
-        self.is_post_correct(post, expected)
         expected.delete()
         response_2 = self.authorized_client.get(path)
         self.assertEqual(response_2.content, response_1.content)
@@ -264,18 +251,28 @@ class FollowViewsTest(TestCase):
         """Авторизованный пользователь может подписаться на пользователя."""
         kwargs_profile = {'username': self.following.username}
         path = reverse('profile_follow', kwargs=kwargs_profile)
-        response = self.authorized_client.get(path, follow=True)
-        is_following = response.context['following']
-        self.assertTrue(is_following)
+        follow_count = Follow.objects.count()
+        self.authorized_client.get(path, follow=True)
+        self.assertEqual(Follow.objects.count(), follow_count + 1)
+        self.assertTrue(
+            Follow.objects.filter(
+                user=self.follower, author=self.following
+            ).exists()
+        )
 
     def test_profile_unfollow_by_follower(self):
         """Авторизованный пользователь может отписаться от пользователя."""
         Follow.objects.create(user=self.follower, author=self.following)
         kwargs_profile = {'username': self.following.username}
         path = reverse('profile_unfollow', kwargs=kwargs_profile)
-        response = self.authorized_client.get(path, follow=True)
-        is_following = response.context['following']
-        self.assertFalse(is_following)
+        follow_count = Follow.objects.count()
+        self.authorized_client.get(path, follow=True)
+        self.assertEqual(Follow.objects.count(), follow_count - 1)
+        self.assertFalse(
+            Follow.objects.filter(
+                user=self.follower, author=self.following
+            ).exists()
+        )
 
     def test_follow_index_shows_correct_post(self):
         """При подписке в ленте подписок появляются новые посты автора."""
@@ -283,8 +280,8 @@ class FollowViewsTest(TestCase):
         expected = Post.objects.create(text='подписка', author=self.following)
         path = reverse('follow_index')
         response = self.authorized_client.get(path)
-        post = response.context['page'][0]
-        PostsPagesTests.is_post_correct(self, post, expected)
+        post_list = response.context['page'].object_list
+        self.assertIn(expected, post_list)
 
     def test_new_post_doesnt_appear_on_unfollow_index(self):
         """При отписке в ленте подписок не появляются новые посты автора."""

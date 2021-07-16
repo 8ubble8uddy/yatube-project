@@ -107,17 +107,12 @@ def add_comment(request, username, post_id):
         form.author = request.user
         form.post = post
         form.save()
-        return redirect('post_view', username=username, post_id=post_id)
-    add_comment = {
-        'form': form
-    }
-    return render(request, 'comments.html', add_comment)
+    return redirect('post_view', username=username, post_id=post_id)
 
 
 @login_required
 def follow_index(request):
-    username = request.user.username
-    follower = get_object_or_404(models.User, username=username)
+    follower = request.user
     post_list = models.Post.objects.filter(author__following__user=follower)
     paginator = Paginator(post_list, 10)
     page_number = request.GET.get('page')
@@ -138,8 +133,9 @@ def profile_follow(request, username):
 
 @login_required
 def profile_unfollow(request, username):
+    follower = request.user
     models.Follow.objects.filter(
-        user=request.user, author__username=username
+        user=follower, author__username=username
     ).delete()
     return redirect('profile', username=username)
 

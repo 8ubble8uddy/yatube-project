@@ -40,7 +40,7 @@ class PostsURLTests(TestCase):
         path_list = [
             '/new/',
             f'/{self.user.username}/{self.post.id}/edit/',
-            f'/{self.user.username}/{self.post.id}/comment',
+            f'/{self.user.username}/{self.post.id}/comment/',
         ]
         for path in path_list:
             with self.subTest(path=path):
@@ -74,3 +74,4 @@ class PostsURLTests(TestCase):
         path = '/jxvjnsvnnoitstr/kfdpckpfpede/'
         response = self.guest_client.get(path)
         self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
+        self.assertTemplateUsed(response, 'misc/404.html')
