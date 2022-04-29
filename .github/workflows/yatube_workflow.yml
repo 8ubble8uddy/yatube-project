@@ -20,7 +20,7 @@ jobs:
           pip install -r yatube/requirements.txt
       - name: Test with flake8, pytest and unittest
         run: |
-          python -m flake8
+          flake8 .
           pytest
           cd yatube/
           python manage.py test
