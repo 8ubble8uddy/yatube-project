@@ -58,6 +58,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
           script: |
+            cd yatube/
             sudo docker-compose stop
             sudo docker-compose rm -f web
             sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/yatube:latest
