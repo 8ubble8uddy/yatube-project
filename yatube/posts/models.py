@@ -34,7 +34,7 @@ class Post(models.Model):
 
 class Comment(models.Model):
     text = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name='comments'
     )
@@ -61,5 +61,4 @@ class Follow(models.Model):
                     user=models.F('author')
                 ), name='not_self_follow'
             )
-
         ]

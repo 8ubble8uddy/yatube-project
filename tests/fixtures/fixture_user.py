@@ -16,3 +16,31 @@ def user_client(user, client):
 def another_user(mixer):
     from django.contrib.auth.models import User
     return mixer.blend(User, username='AnotherUser')
+
+
+@pytest.fixture
+def user_2(django_user_model):
+    return django_user_model.objects.create_user(username='TestUser2', password='1234567')
+
+
+@pytest.fixture
+def another_user_2(django_user_model):
+    return django_user_model.objects.create_user(username='TestUserAnother', password='1234567')
+
+
+@pytest.fixture
+def token(user):
+    from rest_framework_simplejwt.tokens import RefreshToken
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
+
+
+@pytest.fixture
+def user_client_2(token):
+    from rest_framework.test import APIClient
+    client = APIClient()
+    client.credentials(HTTP_AUTHORIZATION=f'Bearer {token["access"]}')
+    return client

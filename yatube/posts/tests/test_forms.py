@@ -7,7 +7,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from ..models import Comment, Group, Post, User
+from posts.models import Comment, Group, Post, User
 
 MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
