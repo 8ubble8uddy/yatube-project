@@ -1,11 +1,11 @@
 # Yatube
 
-[![CI](https://github.com/8ubble8uddy/yatube_project/workflows/yatube-project/badge.svg
-)](https://github.com/8ubble8uddy/yatube_project/actions/workflows/yatube_workflow.yml)
+[![CI](https://github.com/8ubble8uddy/yatube-project/workflows/yatube-project/badge.svg
+)](https://github.com/8ubble8uddy/yatube-project/actions/workflows/yatube_workflow.yml)
 
 ### **Описание**
 
-_[yatube-project](https://github.com/8ubble8uddy/yatube_project) - это социальная сеть для публикации личных дневников и API для неё. На этом сервисе пользователи могут создать свою страницу. Если на нее зайти, то можно посмотреть все записи автора. Пользователи могут заходить на чужие страницы, подписываться на авторов и комментировать их записи. Также записи можно отправить в сообщество и посмотреть там записи разных авторов._
+_[yatube-project](https://github.com/8ubble8uddy/yatube-project) - это социальная сеть для публикации личных дневников и API для неё. На этом сервисе пользователи могут создать свою страницу. Если на нее зайти, то можно посмотреть все записи автора. Пользователи могут заходить на чужие страницы, подписываться на авторов и комментировать их записи. Также записи можно отправить в сообщество и посмотреть там записи разных авторов._
 
 ### **Технологии**
 
@@ -15,10 +15,10 @@ _[yatube-project](https://github.com/8ubble8uddy/yatube_project) - это соц
 
 Клонировать репозиторий и перейти внутри него в директорию ```infra/```:
 ```
-git clone https://github.com/8ubble8uddy/yatube_project.git
+git clone https://github.com/8ubble8uddy/yatube-project.git
 ```
 ```sh
-cd yatube_project/infra/
+cd yatube-project/infra/
 ```
 
 Развернуть и запустить проект в контейнерах:
