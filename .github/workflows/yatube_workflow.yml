@@ -1,4 +1,4 @@
-name: Yatube
+name: yatube-project
 
 on: [push]
 
