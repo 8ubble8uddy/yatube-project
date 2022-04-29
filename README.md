@@ -1,7 +1,7 @@
 # Yatube
 
-[![CI](https://github.com/8ubble8uddy/yatube/workflows/yatube-project/badge.svg
-)](https://github.com/8ubble8uddy/yatube/actions/workflows/yatube_workflow.yml)
+[![CI](https://github.com/8ubble8uddy/yatube_project/workflows/yatube-project/badge.svg
+)](https://github.com/8ubble8uddy/yatube_project/actions/workflows/yatube_workflow.yml)
 
 ### **Описание**
 
